@@ -13,7 +13,7 @@ class Plan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'code', 'fee', 'access_level', 'description', 'is_active',
+        'name', 'code', 'fee', 'access_level', 'description', 'features', 'is_popular', 'is_active',
     ];
 
     protected function casts(): array
@@ -21,6 +21,8 @@ class Plan extends Model
         return [
             'fee' => 'decimal:2',
             'access_level' => 'integer',
+            'features' => 'array',
+            'is_popular' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
@@ -28,6 +30,18 @@ class Plan extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    /** "1500 MZN" / "1500.50 MZN", or "Free". Whole amounts drop the decimals. */
+    public function formattedFee(): string
+    {
+        if ((float) $this->fee == 0.0) {
+            return 'Free';
+        }
+
+        $decimals = (float) $this->fee == floor((float) $this->fee) ? 0 : 2;
+
+        return number_format((float) $this->fee, $decimals, '.', '').' MZN';
     }
 
     #[Scope]

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 #[RouteKey('slug')]
 class BlogPost extends Model
@@ -44,6 +45,13 @@ class BlogPost extends Model
     {
         return Attribute::make(
             get: fn () => max(1, (int) ceil(str_word_count(strip_tags($this->content)) / 200)),
+        );
+    }
+
+    protected function excerpt(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Str::limit(strip_tags($this->content), 160),
         );
     }
 }

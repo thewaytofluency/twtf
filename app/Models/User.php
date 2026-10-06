@@ -64,6 +64,13 @@ class User extends Authenticatable
             ->latestOfMany('ends_at');
     }
 
+    public function pendingSubscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('status', 'pending')
+            ->latestOfMany();
+    }
+
     public function currentAccessLevel(): int
     {
         return $this->currentSubscription?->plan?->access_level ?? 0;

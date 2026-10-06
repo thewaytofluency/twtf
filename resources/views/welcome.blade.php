@@ -8,6 +8,14 @@
 
         <title>{{ config('app.name', 'The Way to Fluency') }}</title>
 
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+            integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
@@ -65,20 +73,7 @@
                     </p>
                 </div>
 
-                <div class="flex justify-evenly space-x-6 mt-4 mb-4">
-                    <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/images/youtube.png" alt="YouTube" class="h-7 hover:scale-110 transition-transform">
-                    </a>
-                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/images/facebook.png" alt="Facebook" class="h-7 hover:scale-110 transition-transform">
-                    </a>
-                    <a href="https://www.whatsapp.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/images/whatsapp.png" alt="WhatsApp" class="h-7 hover:scale-110 transition-transform">
-                    </a>
-                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/images/instagram.png" alt="Instagram" class="h-7 hover:scale-110 transition-transform">
-                    </a>
-                </div>
+                <x-social-links :links="$socialLinks" class="mt-4 mb-4" />
                 {{-- Footer intentionally omitted: source LandingPage.tsx imports Footer but its
                      usage is commented out, so it never renders there either. See
                      resources/views/partials/footer.blade.php. --}}
@@ -214,64 +209,52 @@
                 </div>
 
                 @php
-                    $plans = [
-                        [
-                            'title' => 'Basic',
-                            'description' => 'Perfect for beginners.',
-                            'price' => '1500MZN/month',
-                            'features' => ['Access to basic lessons'],
-                            'buttonText' => 'Choose Basic',
-                            'popular' => false,
-                        ],
-                        [
-                            'title' => 'Standard',
-                            'description' => 'Ideal for intermediate learners.',
-                            'price' => '2000MZN/month',
-                            'features' => ['Access to all lessons', 'Expert tips and tricks', 'Priority support'],
-                            'buttonText' => 'Choose Standard',
-                            'popular' => true,
-                        ],
-                        [
-                            'title' => 'Premium',
-                            'description' => 'For advanced learners.',
-                            'price' => '3000MZN/month',
-                            'features' => ['Access to all lessons', '1-on-1 coaching', 'Exclusive content'],
-                            'buttonText' => 'Choose Premium',
-                            'popular' => false,
-                        ],
-                    ];
+                    // Card widths adapt to how many plans there are: rows are centered flex-wrap
+                    // (so a short last row sits in the middle instead of hugging the left), and
+                    // the width classes are picked per count so 1, 2, 4 or 5+ plans all look
+                    // intentional, not just 3. Full class names so Tailwind's scanner sees them.
+                    $cardWidth = match ($plans->count()) {
+                        4 => 'md:w-[calc(50%-1rem)] xl:w-[calc(25%-1.5rem)]',
+                        default => 'md:w-[22rem]',
+                    };
                 @endphp
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                    @foreach ($plans as $plan)
-                        <div class="relative bg-white rounded-2xl p-8 h-full flex flex-col text-center transition-all duration-300 {{ $plan['popular'] ? 'shadow-2xl ring-2 ring-blue-600 md:-translate-y-4' : 'shadow-md hover:shadow-xl' }}">
-                            @if ($plan['popular'])
-                                <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-1 rounded-full shadow-md">
-                                    Most Popular
-                                </span>
-                            @endif
+                @if ($plans->isEmpty())
+                    <p class="mt-12 text-center text-gray-600">Plans are coming soon.</p>
+                @else
+                    <div class="flex flex-wrap justify-center gap-8 mt-12">
+                        @foreach ($plans as $plan)
+                            <div class="relative bg-white rounded-2xl p-8 flex flex-col text-center transition-all duration-300 w-full {{ $cardWidth }} {{ $plan->is_popular ? 'shadow-2xl ring-2 ring-blue-600 md:-translate-y-4' : 'shadow-md hover:shadow-xl' }}">
+                                @if ($plan->is_popular)
+                                    <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-1 rounded-full shadow-md">
+                                        Most Popular
+                                    </span>
+                                @endif
 
-                            <h2 class="text-xl font-bold text-gray-800">{{ $plan['title'] }}</h2>
-                            <p class="text-gray-600 mt-2">{{ $plan['description'] }}</p>
-                            <p class="text-2xl font-extrabold text-blue-600 mt-4">{{ $plan['price'] }}</p>
+                                <h2 class="text-xl font-bold text-gray-800">{{ $plan->name }}</h2>
+                                @if ($plan->description)
+                                    <p class="text-gray-600 mt-2">{{ $plan->description }}</p>
+                                @endif
+                                <p class="text-2xl font-extrabold text-blue-600 mt-4">{{ $plan->formattedFee() }}<span class="text-sm font-medium text-gray-500">/month</span></p>
 
-                            <ul class="mt-6 space-y-3 flex-1 text-left">
-                                @foreach ($plan['features'] as $feature)
-                                    <li class="flex items-center gap-2 text-gray-600">
-                                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        {{ $feature }}
-                                    </li>
-                                @endforeach
-                            </ul>
+                                <ul class="mt-6 space-y-3 flex-1 text-left">
+                                    @foreach ($plan->features ?? [] as $feature)
+                                        <li class="flex items-center gap-2 text-gray-600">
+                                            <x-lucide-check class="w-5 h-5 text-green-500 flex-shrink-0" />
+                                            {{ $feature }}
+                                        </li>
+                                    @endforeach
+                                </ul>
 
-                            <button class="mt-8 w-full text-white px-6 py-3 rounded-full shadow-md font-semibold transition-colors duration-300 {{ $plan['popular'] ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800' }}">
-                                {{ $plan['buttonText'] }}
-                            </button>
-                        </div>
-                    @endforeach
-                </div>
+                                {{-- Deep-links into the in-app subscribe flow for this plan; guests get
+                                     bounced to login and resume here via Laravel's intended() redirect. --}}
+                                <a href="{{ route('subscription.request', $plan) }}" class="mt-8 w-full flex items-center justify-center text-white px-6 py-3 rounded-full shadow-md font-semibold transition-colors duration-300 {{ $plan->is_popular ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800' }}">
+                                    Choose {{ $plan->name }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </section>
 
@@ -280,8 +263,10 @@
              bottom right at the document's natural end, instead of needing to fill a full
              screen just to remain reachable under `snap-mandatory` (see courses/impact/pricing
              sections above for why a non-snap trailing element doesn't work here). --}}
-        <div class="snap-end bg-blue-600 py-10">
+        <div class="snap-end bg-white pb-10">
             @include('partials.footer')
         </div>
+
+        <x-whatsapp-widget :links="$socialLinks" />
     </body>
 </html>
