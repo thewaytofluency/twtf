@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\BlogPost;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -18,16 +19,60 @@ class DemoBlogSeeder extends Seeder
     {
         $admin = User::where('role', UserRole::Admin)->firstOrFail();
 
-        foreach ($this->posts() as [$title, $daysAgo, $content]) {
+        foreach ($this->posts() as $i => [$title, $daysAgo, $content]) {
             $post = BlogPost::firstOrNew(['slug' => Str::slug($title)]);
             $post->fill([
                 'title' => $title,
                 'content' => trim($content),
                 'author_id' => $admin->id,
             ]);
-            $post->created_at = $post->created_at ?? now()->subDays($daysAgo)->setTime(9, 30);
+            $publishedAt = now()->subDays($daysAgo)->setTime(9, 30);
+            $post->status = 'published';
+            $post->published_at = $post->published_at ?? $publishedAt;
+            $post->created_at = $post->created_at ?? $publishedAt;
+            $post->cover_image = $post->cover_image ?? $this->coverImage($post->slug, $i);
             $post->save();
         }
+    }
+
+    /** A soft diagonal gradient as a stand-in cover (the admin can replace it from the post editor). */
+    private function coverImage(string $slug, int $index): string
+    {
+        $path = "blog/covers/demo-{$slug}.jpg";
+
+        if (Storage::disk('public')->exists($path)) {
+            return $path;
+        }
+
+        $palettes = [
+            [[37, 99, 235], [147, 197, 253]],
+            [[5, 150, 105], [167, 243, 208]],
+            [[217, 119, 6], [253, 230, 138]],
+            [[124, 58, 237], [221, 214, 254]],
+            [[225, 29, 72], [254, 205, 211]],
+            [[8, 145, 178], [165, 243, 252]],
+            [[79, 70, 229], [199, 210, 254]],
+        ];
+        [$from, $to] = $palettes[$index % count($palettes)];
+
+        [$w, $h] = [1200, 630];
+        $image = imagecreatetruecolor($w, $h);
+        for ($y = 0; $y < $h; $y++) {
+            $t = $y / ($h - 1);
+            $color = imagecolorallocate(
+                $image,
+                (int) ($from[0] + ($to[0] - $from[0]) * $t),
+                (int) ($from[1] + ($to[1] - $from[1]) * $t),
+                (int) ($from[2] + ($to[2] - $from[2]) * $t),
+            );
+            imageline($image, 0, $y, $w, $y, $color);
+        }
+
+        ob_start();
+        imagejpeg($image, null, 85);
+        Storage::disk('public')->put($path, ob_get_clean());
+
+        return $path;
     }
 
     /** @return array<int, array{0: string, 1: int, 2: string}> */
@@ -53,19 +98,25 @@ Remember: you do not need a bigger vocabulary to start speaking. You need more s
 TEXT],
 
             ['5 Habits of Learners Who Become Fluent', 62, <<<'TEXT'
-After watching hundreds of students over the years, we noticed that the ones who reach fluency do not necessarily have more talent or more free time. They share a handful of habits. Here are five you can start this week.
-
-1. They study a little every day. Thirty focused minutes daily beat a three-hour session once a week. Memory needs repetition over time, and short daily sessions are easier to protect from a busy schedule.
-
-2. They learn in chunks, not single words. Instead of memorising "make" and "decision" separately, they learn "make a decision". Chunks come out of your mouth ready to use, which is exactly what you need when speaking.
-
-3. They use English for something they enjoy. A football podcast, a cooking channel, a novel, a music playlist. When the content matters to you, you pay attention, and attention is what makes learning stick.
-
-4. They review mistakes without shame. They keep a small notebook of errors and the corrections. Once a week they read it. Most learners make the same five or six mistakes again and again, and just knowing yours is half the cure.
-
-5. They speak early and often. Waiting until your grammar is perfect is the slowest possible route. Speak badly first; improve later.
-
-Pick just one of these habits and try it for two weeks. When it feels automatic, add the next one. Progress in a language is built from small routines, not heroic efforts.
+<p>After watching hundreds of students over the years, we noticed that the ones who reach fluency do not necessarily have more talent or more free time. They share a handful of <strong>habits</strong>. Here are five you can start this week.</p>
+<h2>1. They study a little every day</h2>
+<p>Thirty focused minutes daily beat a three-hour session once a week. Memory needs repetition over time, and short daily sessions are easier to protect from a busy schedule.</p>
+<h2>2. They learn in chunks, not single words</h2>
+<p>Instead of memorising <em>make</em> and <em>decision</em> separately, they learn <strong>make a decision</strong>. Chunks come out of your mouth ready to use, which is exactly what you need when speaking.</p>
+<h2>3. They use English for something they enjoy</h2>
+<p>A football podcast, a cooking channel, a novel, a music playlist. When the content matters to you, you pay attention, and attention is what makes learning stick.</p>
+<h2>4. They review mistakes without shame</h2>
+<p>They keep a small notebook of errors and the corrections, and once a week they read it. Most learners make the same five or six mistakes again and again, and just knowing yours is half the cure.</p>
+<h2>5. They speak early and often</h2>
+<p>Waiting until your grammar is perfect is the slowest possible route.</p>
+<blockquote><p>Speak badly first; improve later.</p></blockquote>
+<h3>Your turn</h3>
+<ul>
+<li>Pick <strong>one</strong> of these habits and try it for two weeks.</li>
+<li>When it feels automatic, add the next one.</li>
+<li>Track your streak somewhere visible.</li>
+</ul>
+<p>Progress in a language is built from small routines, not heroic efforts.</p>
 TEXT],
 
             ['Present Perfect vs Past Simple: A Simple Way to Choose', 49, <<<'TEXT'

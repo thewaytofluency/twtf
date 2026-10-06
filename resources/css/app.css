@@ -7,3 +7,22 @@
     background-size: cover;
     background-position: center;
 }
+
+/* Blog post body — shared by the admin editor and the public article page. */
+.post-content [data-align='center'] { text-align: center; }
+.post-content [data-align='right'] { text-align: right; }
+.post-content [data-align='left'] { text-align: left; }
+.post-content img { border-radius: 0.5rem; margin-left: auto; margin-right: auto; }
+.post-content a { color: #2563eb; }
+
+/* Editor-only chrome. */
+.ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: #9ca3af;
+}
+.ProseMirror img.ProseMirror-selectednode { outline: 3px solid #2563eb; }
+
+[x-cloak] { display: none !important; }

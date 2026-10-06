@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::resource('videos', AdminVideoController::class)->except('show');
     Route::resource('docs', AdminDocController::class)->except('show');
+    Route::post('blog-posts/images', [AdminBlogPostController::class, 'uploadImage'])->name('blog-posts.images');
     Route::resource('blog-posts', AdminBlogPostController::class)->except('show');
     Route::resource('plans', AdminPlanController::class)->except('show');
 

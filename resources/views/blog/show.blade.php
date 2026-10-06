@@ -7,13 +7,24 @@
     </a>
 
     <article class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-10 max-w-3xl">
+        @unless ($blogPost->isPublished())
+            <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+                Preview — this post is {{ $blogPost->isScheduled() ? 'scheduled for '.$blogPost->published_at->format('M j, Y H:i') : 'a draft' }} and not visible to students.
+            </div>
+        @endunless
+
+        @if ($blogPost->cover_url)
+            <img src="{{ $blogPost->cover_url }}" alt="" class="w-full aspect-video object-cover rounded-xl mb-6">
+        @endif
+
         <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ $blogPost->title }}</h1>
         <div class="text-sm text-gray-500 mb-6">
-            {{ $blogPost->author->name }} · {{ $blogPost->created_at->format('M j, Y') }} · {{ $blogPost->readTimeMinutes }} min read
+            {{ $blogPost->author->name }} · {{ ($blogPost->published_at ?? $blogPost->created_at)->format('M j, Y') }} · {{ $blogPost->readTimeMinutes }} min read
         </div>
 
-        <div class="prose prose-gray max-w-none text-gray-700 leading-relaxed">
-            {!! nl2br(e($blogPost->content)) !!}
+        {{-- Safe to print raw: content is sanitized on write by BlogPost::content() / PostHtml. --}}
+        <div class="post-content prose prose-gray max-w-none">
+            {!! $blogPost->content !!}
         </div>
 
         <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between flex-wrap gap-4">

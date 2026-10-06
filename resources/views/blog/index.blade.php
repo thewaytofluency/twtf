@@ -6,7 +6,11 @@
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($blogPosts as $blogPost)
-                <a href="{{ route('blog.show', $blogPost) }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow flex flex-col">
+                <a href="{{ route('blog.show', $blogPost) }}" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+                    @if ($blogPost->cover_url)
+                        <img src="{{ $blogPost->cover_url }}" alt="" loading="lazy" class="w-full aspect-video object-cover">
+                    @endif
+                    <div class="p-6 flex flex-col flex-1">
                     <h2 class="text-lg font-semibold text-gray-800 mb-2">{{ $blogPost->title }}</h2>
                     <p class="text-gray-600 text-sm mb-4 flex-1">
                         {{ $blogPost->excerpt }}
@@ -14,6 +18,7 @@
                     <div class="text-xs text-gray-500 flex items-center justify-between">
                         <span>{{ $blogPost->author->name }}</span>
                         <span>{{ $blogPost->readTimeMinutes }} min read</span>
+                    </div>
                     </div>
                 </a>
             @endforeach

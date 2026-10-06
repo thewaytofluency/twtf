@@ -11,6 +11,8 @@ class CommentController extends Controller
 {
     public function store(CommentRequest $request, BlogPost $blogPost): RedirectResponse
     {
+        abort_unless($blogPost->isPublished(), 404);
+
         $blogPost->comments()->create([
             'user_id' => Auth::id(),
             'content' => $request->validated('content'),

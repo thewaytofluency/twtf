@@ -21,7 +21,7 @@ class DashboardController extends Controller
             'totalStudents' => User::where('role', UserRole::Student)->count(),
             'totalVideos' => Video::count(),
             'totalDocs' => Doc::count(),
-            'totalBlogPosts' => BlogPost::count(),
+            'totalBlogPosts' => BlogPost::published()->count(),
         ]);
     }
 }
