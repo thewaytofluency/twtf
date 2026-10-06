@@ -22,6 +22,11 @@ class DatabaseSeeder extends Seeder
             SocialMediaLinkSeeder::class,
         ]);
 
+        // Realistic sample content for manual testing — never in production.
+        if (app()->environment('local')) {
+            $this->call(DemoContentSeeder::class);
+        }
+
         // User::factory(10)->create();
 
         // 'role' defaults to student at the DB level; set explicitly here for clarity.
