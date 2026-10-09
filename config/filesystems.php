@@ -32,17 +32,26 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
-            'serve' => true,
+            // PRIVATE_DISK_ROOT / PUBLIC_DISK_ROOT point uploads at a persistent volume on hosts
+            // where the app's own folder is replaced on every deploy (see DEPLOY.md).
+            'root' => env('PRIVATE_DISK_ROOT', storage_path('app/private')),
+            // Off: the framework's signed /storage/{path} route for this disk would shadow the public
+            // media route in routes/web.php, and nothing in the app generates signed URLs for it.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => env('PUBLIC_DISK_ROOT', storage_path('app/public')),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
+            // Readable by the web server (and group-writable), so uploaded media can be shown.
+            'permissions' => [
+                'file' => ['public' => 0664, 'private' => 0640],
+                'dir' => ['public' => 0775, 'private' => 0750],
+            ],
             'throw' => false,
             'report' => false,
         ],

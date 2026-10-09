@@ -1,0 +1,35 @@
+# OPTIONAL - copy to ./app.yaml (repo root) only if you want the post-deployment job and/or a
+# persistent volume. The app also bootstraps itself on the first request (AUTO_DEPLOY=true), so
+# nothing here is required. See DEPLOY.md.
+#
+# Wasmer merges this file with the settings your app already has ("Wasmer extends the app's
+# configuration with the values from that file"), so keep it small and check the field names
+# against https://docs.wasmer.io/edge/configuration/ before committing - an invalid app.yaml can
+# fail the deploy.
+
+kind: wasmer.io/App.v0
+
+# Persistent storage for uploads. Then set, in the app's environment:
+#   PUBLIC_DISK_ROOT=/data/public
+#   PRIVATE_DISK_ROOT=/data/private
+# (Renaming or removing a volume here deletes its data on the next deploy.)
+volumes:
+  - name: data
+    mount: /data
+
+# Runs once after every new version is created: migrations + first-run data.
+jobs:
+  - name: bootstrap
+    trigger: post-deployment
+    action:
+      fetch:
+        path: /__deploy
+        method: POST
+        # If you set DEPLOY_TOKEN, send it too (a private repo only - this file is committed):
+        # headers:
+        #   - name: X-Deploy-Token
+        #     value: your-token
+        expect:
+          status_codes: [200]
+        retries: 3
+        timeout: 5m

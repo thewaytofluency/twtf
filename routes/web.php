@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VideoController as AdminVideoController;
 use App\Http\Controllers\BlogPostController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LikeController;
@@ -23,6 +24,7 @@ use App\Models\Course;
 use App\Models\ImpactItem;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 // Public pages - ported from src/router/index.tsx. Courses/Impact/Pricing used to be separate
 // routes/views; they're now sections (#courses, #impact, #pricing) on the single fullpage
@@ -36,6 +38,29 @@ Route::get('/', function () {
         'plans' => Plan::active()->where('access_level', '>', 0)->orderBy('access_level')->orderBy('fee')->get(),
     ]);
 });
+
+// Uploaded media (cover images, avatars, landing photos...). Served straight from the public disk
+// so it works without the `public/storage` symlink that `php artisan storage:link` creates -
+// hosts with no shell (or a read-only app folder) can't make one. Where the symlink exists, the
+// web server serves the file itself and never reaches this route.
+Route::get('/storage/{path}', function (string $path) {
+    $disk = Storage::disk('public');
+
+    // Paths that climb out of the disk root ("../") are refused outright.
+    abort_unless(! str_contains($path, '..') && $disk->exists($path), 404);
+
+    return $disk->response($path, null, ['Cache-Control' => 'public, max-age=86400']);
+})->where('path', '.*')->name('media');
+
+// Release bootstrap for hosts with no shell: migrations + first-run data. Idempotent; see config/deploy.php.
+// No session/CSRF here (a fresh database has no sessions table yet); it is rate limited in the controller.
+Route::post('/__deploy', DeployController::class)
+    ->withoutMiddleware([
+        \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    ])
+    ->name('deploy');
 
 Route::redirect('/courses', '/#courses');
 Route::redirect('/impact', '/#impact');

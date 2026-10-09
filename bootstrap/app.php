@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureDeployed;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Foundation\Application;
@@ -19,7 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
         ]);
 
+        // First in the group, before StartSession: with SESSION_DRIVER=database a brand-new
+        // database has no `sessions` table yet, so the bootstrap must run before sessions are touched.
+        $middleware->prependToGroup('web', EnsureDeployed::class);
         $middleware->appendToGroup('web', EnsureUserIsActive::class);
+
+        // Behind a host's TLS proxy (Wasmer, Render...): trust it so URLs and redirects use https.
+        if (env('TRUST_PROXIES')) {
+            $middleware->trustProxies(at: '*');
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

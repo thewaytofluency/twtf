@@ -49,7 +49,7 @@ class DemoUsersSeeder extends Seeder
             $joinedAt = now()->subDays($joinedDaysAgo)->setTime(random_int(7, 21), random_int(0, 59));
 
             $user = User::firstOrNew(['email' => $this->email($name)]);
-            $user->fill(['name' => $name, 'contact' => $contact, 'password' => Hash::make('password')]);
+            $user->fill(['name' => $name, 'contact' => $contact, 'password' => Hash::make(config('deploy.demo_password'))]);
             $user->email_verified_at = $joinedAt;
             $user->created_at = $user->created_at ?? $joinedAt;
             $user->forceFill([

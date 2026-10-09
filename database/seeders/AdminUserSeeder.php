@@ -11,7 +11,12 @@ use Illuminate\Support\Facades\Hash;
 class AdminUserSeeder extends Seeder
 {
     /**
-     * Seed a development admin account. Rotate/replace credentials before production.
+     * Seed the administrator account.
+     *
+     * Credentials come from config/deploy.php (ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD).
+     * Local development keeps the old convenience login (admin@example.com / password); any
+     * other environment must set ADMIN_PASSWORD. The password is only ever set when the account
+     * is created, so re-running this (every deploy does) never resets one the admin has changed.
      *
      * 'role' and 'status' are deliberately not in User::$fillable (to prevent
      * privilege escalation via any user-facing form), so they're set here via
@@ -19,14 +24,24 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::updateOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
+        $config = config('deploy.admin');
+
+        $password = $config['password']
+            ?: (app()->environment('local', 'testing') ? 'password' : null);
+
+        if (! $password) {
+            $this->command?->warn('AdminUserSeeder skipped: set ADMIN_PASSWORD to create the administrator.');
+
+            return;
+        }
+
+        $admin = User::firstOrNew(['email' => $config['email']]);
+
+        if (! $admin->exists) {
+            $admin->name = $config['name'];
+            $admin->password = Hash::make($password);
+            $admin->email_verified_at = now();
+        }
 
         $admin->forceFill([
             'role' => UserRole::Admin,

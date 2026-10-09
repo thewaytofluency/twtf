@@ -8,6 +8,7 @@ use App\Models\Doc;
 use App\Models\SocialMediaLink;
 use App\Models\Video;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Behind a TLS-terminating host the request itself looks like http; APP_URL says what it really is.
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+
         Relation::enforceMorphMap([
             'video' => Video::class,
             'doc' => Doc::class,

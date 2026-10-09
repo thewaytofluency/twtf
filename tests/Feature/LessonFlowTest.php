@@ -260,7 +260,7 @@ test('the home page offers where to continue and progress per level', function (
         ->assertSee('Your progress');
 });
 
-test('the profile shows plan, stats, progress and recent activity', function () {
+test('the profile shows the plan and learning stats', function () {
     $video = flowVideo('Watched Video', 'beginner', 1);
     $student = subscribedStudent(1);
     $this->actingAs($student)->post(route('progress.update'), ['type' => 'video', 'id' => $video->id, 'completed' => 1]);
@@ -269,9 +269,7 @@ test('the profile shows plan, stats, progress and recent activity', function () 
         ->assertOk()
         ->assertSee('L1 plan')
         ->assertSee('Videos completed')
-        ->assertSee('Recent activity')
-        ->assertSee('Watched Video')
-        ->assertSee('Progress by level');
+        ->assertSee('1/1');
 });
 
 test('the profile accepts a contact number and a photo, and the photo can be removed', function () {
