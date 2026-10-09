@@ -16,6 +16,7 @@ class VideoRequest extends FormRequest
             'youtube_url' => ['required', 'url', 'max:2048', 'regex:/(youtube\.com|youtu\.be)/i'],
             'course_level' => ['required', new Enum(CourseLevel::class)],
             'required_access_level' => ['required', 'integer', 'min:0', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:65535'],
         ];
     }
 }

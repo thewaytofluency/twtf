@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Full-length articles (plain text, paragraphs separated by blank lines — the blog view renders
+ * Full-length articles (plain text, paragraphs separated by blank lines - the blog view renders
  * content with nl2br, not markdown) written for English learners.
  */
 class DemoBlogSeeder extends Seeder

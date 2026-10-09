@@ -5,13 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $title ?? 'Admin' }} — {{ config('app.name', 'The Way to Fluency') }}</title>
+        <title>{{ $title ?? 'Admin' }} - {{ config('app.name', 'The Way to Fluency') }}</title>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
         {{--
-            New admin-only shell (Phase 2) — reuses the visual language of the student
+            New admin-only shell (Phase 2) - reuses the visual language of the student
             dashboard (resources/views/home.blade.php: same sidebar classes, same
             desktop/mobile split) without touching that file, plus active-route
             highlighting the student sidebar currently lacks.
@@ -45,6 +45,8 @@
                                 ['route' => 'admin.blog-posts.index', 'pattern' => 'admin.blog-posts.*', 'label' => 'Blog Posts', 'icon' => 'newspaper'],
                                 ['route' => 'admin.social-media-links.index', 'pattern' => 'admin.social-media-links.*', 'label' => 'Social Links', 'icon' => 'link'],
                                 ['route' => 'admin.users.index', 'pattern' => 'admin.users.*', 'label' => 'Students', 'icon' => 'graduation-cap'],
+                                ['route' => 'admin.courses.index', 'pattern' => 'admin.courses.*', 'label' => 'Courses', 'icon' => 'book-open'],
+                                ['route' => 'admin.impact.index', 'pattern' => 'admin.impact.*', 'label' => 'Our Impact', 'icon' => 'heart-handshake'],
                                 ['route' => 'admin.plans.index', 'pattern' => 'admin.plans.*', 'label' => 'Plans', 'icon' => 'layers'],
                                 ['route' => 'admin.subscriptions.index', 'pattern' => 'admin.subscriptions.*', 'label' => 'Subscriptions', 'icon' => 'credit-card'],
                             ];

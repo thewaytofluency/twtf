@@ -212,4 +212,144 @@ Alpine.data('postEditor', (config) => {
     };
 });
 
+// ---------------------------------------------------------------------------------------------
+// Lesson flow (videos & documents): completion state, the playlist counter and video autoplay.
+// ---------------------------------------------------------------------------------------------
+
+/** Completion state shared by the video player and the document reader. */
+const progressState = (cfg) => ({
+    completed: cfg.completed,
+    doneCount: cfg.doneCount,
+    busy: false,
+
+    async setCompleted(value) {
+        if (this.busy || value === this.completed) return;
+        this.busy = true;
+
+        try {
+            const response = await fetch(cfg.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': cfg.csrf,
+                },
+                body: JSON.stringify({ type: cfg.type, id: cfg.id, completed: value }),
+            });
+
+            if (!response.ok) throw new Error('Could not save progress');
+
+            this.completed = value;
+            this.doneCount += value ? 1 : -1;
+        } catch (e) {
+            console.error(e);
+        } finally {
+            this.busy = false;
+        }
+    },
+
+    toggle() {
+        return this.setCompleted(!this.completed);
+    },
+});
+
+Alpine.data('lessonProgress', (cfg) => progressState(cfg));
+
+let youTubeApi = null;
+const loadYouTubeApi = () => {
+    youTubeApi ??= new Promise((resolve) => {
+        if (window.YT?.Player) return resolve(window.YT);
+
+        const previous = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = () => {
+            previous?.();
+            resolve(window.YT);
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(script);
+    });
+
+    return youTubeApi;
+};
+
+const AUTOPLAY_KEY = 'twtf.autoplay';
+const COUNTDOWN_SECONDS = 8;
+
+Alpine.data('lessonPlayer', (cfg) => {
+    // Kept outside the reactive object (Alpine's proxy and the YouTube player don't mix).
+    let player = null;
+    let timer = null;
+
+    return {
+        ...progressState(cfg),
+
+        nextUrl: cfg.nextUrl,
+        nextTitle: cfg.nextTitle,
+        autoplay: true,
+        upNext: false,
+        secondsLeft: COUNTDOWN_SECONDS,
+
+        init() {
+            try {
+                this.autoplay = localStorage.getItem(AUTOPLAY_KEY) !== 'off';
+            } catch {
+                // storage blocked: keep the default
+            }
+
+            if (!cfg.hasEmbed) return;
+
+            loadYouTubeApi().then((YT) => {
+                player = new YT.Player(this.$refs.frame, {
+                    events: {
+                        onStateChange: (event) => {
+                            if (event.data === YT.PlayerState.ENDED) this.onEnded();
+                        },
+                    },
+                });
+            });
+        },
+
+        saveAutoplay() {
+            try {
+                localStorage.setItem(AUTOPLAY_KEY, this.autoplay ? 'on' : 'off');
+            } catch {
+                // storage blocked: the choice just won't persist
+            }
+        },
+
+        async onEnded() {
+            await this.setCompleted(true);
+
+            // Finishing a lesson always shows what's next; it only moves on by itself if autoplay is on.
+            this.upNext = true;
+            if (this.nextUrl && this.autoplay) this.startCountdown();
+        },
+
+        startCountdown() {
+            this.stopCountdown();
+            this.secondsLeft = COUNTDOWN_SECONDS;
+
+            timer = setInterval(() => {
+                this.secondsLeft -= 1;
+                if (this.secondsLeft <= 0) {
+                    this.stopCountdown();
+                    window.location.href = this.nextUrl;
+                }
+            }, 1000);
+        },
+
+        stopCountdown() {
+            clearInterval(timer);
+            timer = null;
+        },
+
+        cancelUpNext() {
+            this.stopCountdown();
+            this.upNext = false;
+        },
+    };
+});
+
 Alpine.start();

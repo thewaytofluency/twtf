@@ -4,7 +4,7 @@ namespace Database\Seeders\Support;
 
 /**
  * Tiny dependency-free PDF writer, just enough to give seeded documents a real, openable file
- * (A4, Helvetica, headings, wrapped paragraphs and bullets, automatic page breaks). ASCII only —
+ * (A4, Helvetica, headings, wrapped paragraphs and bullets, automatic page breaks). ASCII only -
  * the standard Helvetica font here has no encoding for anything else.
  */
 class SimplePdf

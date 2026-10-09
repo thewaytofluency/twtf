@@ -36,6 +36,7 @@ class DocController extends Controller
         $data['file_path'] = $file->store('docs', 'local');
         $data['original_filename'] = $file->getClientOriginalName();
         $data['file_size'] = $file->getSize();
+        $data['sort_order'] = $data['sort_order'] ?? Doc::nextSortOrder();
         $data['created_by'] = Auth::id();
 
         Doc::create($data);
@@ -63,6 +64,8 @@ class DocController extends Controller
             $data['original_filename'] = $file->getClientOriginalName();
             $data['file_size'] = $file->getSize();
         }
+
+        $data['sort_order'] = $data['sort_order'] ?? $doc->sort_order;
 
         $doc->update($data);
 

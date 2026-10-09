@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\BlogPost;
 use App\Models\Comment;
+use App\Models\Doc;
 use App\Models\SocialMediaLink;
 use App\Models\Video;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -27,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::enforceMorphMap([
             'video' => Video::class,
+            'doc' => Doc::class,
             'blog_post' => BlogPost::class,
             'comment' => Comment::class,
         ]);

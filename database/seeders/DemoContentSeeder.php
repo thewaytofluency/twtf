@@ -20,6 +20,7 @@ class DemoContentSeeder extends Seeder
         $this->call([
             PlanSeeder::class,
             AdminUserSeeder::class,
+            DemoLandingSeeder::class,
             DemoUsersSeeder::class,
             DemoVideosSeeder::class,
             DemoDocsSeeder::class,

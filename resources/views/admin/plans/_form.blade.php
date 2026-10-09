@@ -12,7 +12,7 @@
     <div>
         <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Code</label>
         <input id="code" name="code" type="text" required placeholder="e.g. standard" class="{{ $inputClass }}" value="{{ old('code', $plan->code) }}">
-        <p class="mt-1 text-sm text-gray-500">Unique identifier — letters, numbers, dashes and underscores.</p>
+        <p class="mt-1 text-sm text-gray-500">Unique identifier - letters, numbers, dashes and underscores.</p>
     </div>
 
     <div class="grid grid-cols-2 gap-4">
@@ -36,7 +36,7 @@
     <div>
         <label for="features" class="block text-sm font-medium text-gray-700 mb-1">Features</label>
         <textarea id="features" name="features" rows="5" class="{{ $inputClass }}">{{ $featuresText }}</textarea>
-        <p class="mt-1 text-sm text-gray-500">One per line — shown as a checklist on the pricing cards.</p>
+        <p class="mt-1 text-sm text-gray-500">One per line - shown as a checklist on the pricing cards.</p>
     </div>
 
     <div class="space-y-2">

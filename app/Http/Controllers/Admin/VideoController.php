@@ -31,6 +31,7 @@ class VideoController extends Controller
     {
         Video::create([
             ...$request->validated(),
+            'sort_order' => $request->validated('sort_order') ?? Video::nextSortOrder(),
             'created_by' => Auth::id(),
         ]);
 
@@ -47,7 +48,10 @@ class VideoController extends Controller
 
     public function update(VideoRequest $request, Video $video): RedirectResponse
     {
-        $video->update($request->validated());
+        $video->update([
+            ...$request->validated(),
+            'sort_order' => $request->validated('sort_order') ?? $video->sort_order,
+        ]);
 
         return redirect()->route('admin.videos.index')->with('status', 'Video updated.');
     }

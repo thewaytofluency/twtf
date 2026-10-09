@@ -22,7 +22,7 @@ class LikeController extends Controller
 
         if ($existing) {
             // Deleting the retrieved instance (not a query-builder ->delete()) so the
-            // Eloquent event pipeline actually fires — LikeObserver::deleted() is what
+            // Eloquent event pipeline actually fires - LikeObserver::deleted() is what
             // decrements like_count, and that only runs on model-level deletes.
             $existing->delete();
         } else {
@@ -32,7 +32,7 @@ class LikeController extends Controller
                 // Two near-simultaneous submits (e.g. a double-click) both passed the
                 // "not liked yet" check above; the unique constraint on
                 // (user_id, likeable_type, likeable_id) caught the second one. The like
-                // already exists either way — nothing left to do.
+                // already exists either way - nothing left to do.
             }
         }
 

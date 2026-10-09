@@ -65,7 +65,7 @@ test('user can delete their account', function () {
 
     $this->assertGuest();
     // User now uses SoftDeletes (to preserve subscription/payment audit history
-    // once students can pay) — the row is soft-deleted, not gone. fresh() bypasses
+    // once students can pay) - the row is soft-deleted, not gone. fresh() bypasses
     // scopes by design, so it still finds the (now trashed) row; assert that instead.
     $this->assertSoftDeleted($user);
 });

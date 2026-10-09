@@ -2,7 +2,7 @@
 
 {{--
     Renders whichever platforms are visible, in a fixed display order, using Font Awesome
-    brand icons (Phase 6) rather than the per-platform PNGs the icon row used to hardcode —
+    brand icons (Phase 6) rather than the per-platform PNGs the icon row used to hardcode -
     covers TikTok too, which never had a matching image asset.
 --}}
 @php

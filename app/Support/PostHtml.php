@@ -9,7 +9,7 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
  * Everything blog-post HTML goes through. Content comes from the admin WYSIWYG editor, but it is
  * still sanitized on write with a strict allow-list (no scripts, no inline styles, no event
  * handlers, no javascript: URLs) so a compromised admin account or a pasted payload can't turn
- * the blog into an XSS vector for students — and so stored markup stays in the small set the
+ * the blog into an XSS vector for students - and so stored markup stays in the small set the
  * public stylesheet knows how to style.
  */
 class PostHtml

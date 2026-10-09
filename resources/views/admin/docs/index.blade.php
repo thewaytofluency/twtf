@@ -21,7 +21,7 @@
                     <tr>
                         <td class="px-6 py-4 text-gray-900">{{ $doc->title }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ $doc->original_filename }}</td>
-                        <td class="px-6 py-4 text-gray-600">{{ $doc->course_level?->label() ?? '—' }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ $doc->course_level?->label() ?? '-' }}</td>
                         <td class="px-6 py-4 text-gray-600">Level {{ $doc->required_access_level }}</td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             <a href="{{ route('admin.docs.edit', $doc) }}" class="text-blue-600 hover:text-blue-700 font-medium mr-4">Edit</a>

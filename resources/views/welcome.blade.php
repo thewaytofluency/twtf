@@ -22,7 +22,7 @@
         {{--
             Originally ported 1:1 from src/pages/LandingPage.tsx as its own route, this page now
             also absorbs the former /courses, /impact, /pricing pages as fullpage scroll-snap
-            sections (#home, #courses, #impact, #pricing) — see the `snap-y snap-mandatory
+            sections (#home, #courses, #impact, #pricing) - see the `snap-y snap-mandatory
             scroll-smooth` on <html> above, which drives the snapping, and
             partials/navbar.blade.php for the fixed nav + #anchor links that drive click-to-scroll.
             Each section uses `scroll-mt-24` so it settles below the fixed nav instead of under it.
@@ -98,49 +98,36 @@
                     </p>
                 </div>
 
-                @php
-                    $courses = [
-                        [
-                            'title' => 'Beginner English',
-                            'description' => 'Start your journey with basic English lessons.',
-                            'emoji' => '🌱',
-                            'accent' => 'from-green-400 to-green-600',
-                        ],
-                        [
-                            'title' => 'Intermediate English',
-                            'description' => 'Enhance your skills with intermediate-level content.',
-                            'emoji' => '📈',
-                            'accent' => 'from-blue-400 to-blue-600',
-                        ],
-                        [
-                            'title' => 'Advanced English',
-                            'description' => 'Master English with advanced lessons and tips.',
-                            'emoji' => '🏆',
-                            'accent' => 'from-purple-400 to-purple-600',
-                        ],
-                    ];
-                @endphp
+                @php $cardWidth = \App\Support\CardGrid::cardWidth($courses->count()); @endphp
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                    @foreach ($courses as $course)
-                        <div class="group bg-white rounded-2xl shadow-md hover:shadow-xl p-8 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-br {{ $course['accent'] }} flex items-center justify-center text-3xl mb-5 shadow-md transition-transform duration-300 group-hover:scale-110">
-                                {{ $course['emoji'] }}
+                @if ($courses->isEmpty())
+                    <p class="mt-12 text-center text-gray-600">Courses are coming soon.</p>
+                @else
+                    <div class="{{ \App\Support\CardGrid::CONTAINER }}">
+                        @foreach ($courses as $course)
+                            <div class="group bg-white rounded-2xl shadow-md hover:shadow-xl p-8 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 {{ $cardWidth }}">
+                                @if ($course->badge_image_url)
+                                    <img src="{{ $course->badge_image_url }}" alt="" loading="lazy" class="w-full aspect-video object-cover rounded-xl mb-5 shadow-md">
+                                @else
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-br {{ $course->accent_classes }} flex items-center justify-center text-3xl mb-5 shadow-md transition-transform duration-300 group-hover:scale-110">
+                                        {{ $course->emoji }}
+                                    </div>
+                                @endif
+                                <h2 class="text-xl font-bold text-gray-800">{{ $course->title }}</h2>
+                                <p class="text-gray-600 mt-2 flex-1">{{ $course->description }}</p>
+                                <a href="{{ $course->cta_url ?: (Route::has('register') ? route('register') : '#') }}" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-full shadow-md text-md hover:bg-blue-700 transition-colors duration-300">
+                                    Learn More
+                                </a>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">{{ $course['title'] }}</h2>
-                            <p class="text-gray-600 mt-2">{{ $course['description'] }}</p>
-                            <button class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-full shadow-md text-md hover:bg-blue-700 transition-colors duration-300">
-                                Learn More
-                            </button>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </section>
 
         {{--
             Ported from src/pages/ImpactPage.tsx. The source's /impact1.jpg, /impact2.jpg,
-            /impact3.jpg never existed anywhere in the project — they rendered as broken image
+            /impact3.jpg never existed anywhere in the project - they rendered as broken image
             icons. This redesign replaces them with themed emoji badges instead of leaving them
             broken (this page is now an intentional restyle, not a strict 1:1 port).
         --}}
@@ -156,37 +143,30 @@
                     </p>
                 </div>
 
-                @php
-                    $impacts = [
-                        [
-                            'title' => 'Empowering Communities',
-                            'description' => 'Helping communities grow through education and resources.',
-                            'emoji' => '🤝',
-                        ],
-                        [
-                            'title' => 'Transforming Lives',
-                            'description' => 'Providing opportunities to individuals for a better future.',
-                            'emoji' => '🚀',
-                        ],
-                        [
-                            'title' => 'Global Reach',
-                            'description' => 'Making a difference across the globe with our initiatives.',
-                            'emoji' => '🌍',
-                        ],
-                    ];
-                @endphp
+                @php $cardWidth = \App\Support\CardGrid::cardWidth($impactItems->count()); @endphp
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                    @foreach ($impacts as $impact)
-                        <div class="group bg-gray-50 border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg p-8 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1">
-                            <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-3xl mb-5 transition-transform duration-300 group-hover:scale-110">
-                                {{ $impact['emoji'] }}
+                @if ($impactItems->isEmpty())
+                    <p class="mt-12 text-center text-gray-600">Our story is being written - check back soon.</p>
+                @else
+                    <div class="{{ \App\Support\CardGrid::CONTAINER }}">
+                        @foreach ($impactItems as $impact)
+                            <div class="group bg-gray-50 border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg p-8 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 {{ $cardWidth }}">
+                                @if ($impact->badge_image_url)
+                                    <img src="{{ $impact->badge_image_url }}" alt="" loading="lazy" class="w-full aspect-video object-cover rounded-xl mb-5">
+                                @else
+                                    <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-3xl mb-5 transition-transform duration-300 group-hover:scale-110">
+                                        {{ $impact->emoji }}
+                                    </div>
+                                @endif
+                                @if ($impact->stat)
+                                    <p class="text-4xl font-extrabold text-blue-600 mb-1">{{ $impact->stat }}</p>
+                                @endif
+                                <h2 class="text-xl font-bold text-gray-800">{{ $impact->title }}</h2>
+                                <p class="text-gray-600 mt-2">{{ $impact->description }}</p>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">{{ $impact['title'] }}</h2>
-                            <p class="text-gray-600 mt-2">{{ $impact['description'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </section>
 
@@ -208,23 +188,14 @@
                     </p>
                 </div>
 
-                @php
-                    // Card widths adapt to how many plans there are: rows are centered flex-wrap
-                    // (so a short last row sits in the middle instead of hugging the left), and
-                    // the width classes are picked per count so 1, 2, 4 or 5+ plans all look
-                    // intentional, not just 3. Full class names so Tailwind's scanner sees them.
-                    $cardWidth = match ($plans->count()) {
-                        4 => 'md:w-[calc(50%-1rem)] xl:w-[calc(25%-1.5rem)]',
-                        default => 'md:w-[22rem]',
-                    };
-                @endphp
+                @php $cardWidth = \App\Support\CardGrid::cardWidth($plans->count()); @endphp
 
                 @if ($plans->isEmpty())
                     <p class="mt-12 text-center text-gray-600">Plans are coming soon.</p>
                 @else
-                    <div class="flex flex-wrap justify-center gap-8 mt-12">
+                    <div class="{{ \App\Support\CardGrid::CONTAINER }}">
                         @foreach ($plans as $plan)
-                            <div class="relative bg-white rounded-2xl p-8 flex flex-col text-center transition-all duration-300 w-full {{ $cardWidth }} {{ $plan->is_popular ? 'shadow-2xl ring-2 ring-blue-600 md:-translate-y-4' : 'shadow-md hover:shadow-xl' }}">
+                            <div class="relative bg-white rounded-2xl p-8 flex flex-col text-center transition-all duration-300 {{ $cardWidth }} {{ $plan->is_popular ? 'shadow-2xl ring-2 ring-blue-600 md:-translate-y-4' : 'shadow-md hover:shadow-xl' }}">
                                 @if ($plan->is_popular)
                                     <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-1 rounded-full shadow-md">
                                         Most Popular
@@ -259,7 +230,7 @@
         </section>
 
         {{-- `snap-end` (not `snap-start`) so this stays a valid, exactly-reachable snap point
-             without needing `min-h-screen` — the footer's bottom edge aligns with the viewport
+             without needing `min-h-screen` - the footer's bottom edge aligns with the viewport
              bottom right at the document's natural end, instead of needing to fill a full
              screen just to remain reachable under `snap-mandatory` (see courses/impact/pricing
              sections above for why a non-snap trailing element doesn't work here). --}}

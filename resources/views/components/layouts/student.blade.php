@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $title ?? 'Home' }} — {{ config('app.name', 'The Way to Fluency') }}</title>
+        <title>{{ $title ?? 'Home' }} - {{ config('app.name', 'The Way to Fluency') }}</title>
 
         <link
             rel="stylesheet"
@@ -43,9 +43,7 @@
                     </strong>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                        {{ $userInitials }}
-                    </div>
+                    <x-avatar :user="Auth::user()" class="w-8 h-8 text-sm" />
                 </div>
             </header>
 
@@ -102,9 +100,7 @@
                     <!-- User Profile Section -->
                     <div class="border-t border-gray-200 p-4">
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                {{ $userInitials }}
-                            </div>
+                            <x-avatar :user="Auth::user()" class="w-10 h-10 text-sm" />
                             <div>
                                 <div class="font-medium text-gray-900">{{ $username }}</div>
                                 <div class="text-sm text-gray-500">Student</div>
@@ -158,9 +154,7 @@
 
                                     <div class="p-4 border-b border-gray-200">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
-                                                {{ $userInitials }}
-                                            </div>
+                                            <x-avatar :user="Auth::user()" class="w-12 h-12 text-base" />
                                             <div>
                                                 <div class="font-semibold text-gray-900">{{ $username }}</div>
                                                 <div class="text-sm text-gray-500">Student</div>

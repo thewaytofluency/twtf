@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\BlogPost;
 use App\Models\Comment;
+use App\Models\Doc;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Database\Seeder;
@@ -32,6 +33,7 @@ class DemoEngagementSeeder extends Seeder
 
         $this->comment($students);
         $this->like($students);
+        $this->progress($students);
     }
 
     private function comment($students): void
@@ -95,6 +97,51 @@ class DemoEngagementSeeder extends Seeder
                 $comment->save();
             }
         }
+    }
+
+    /** Study history, so profiles and the "continue where you left off" cards have something to show. */
+    private function progress($students): void
+    {
+        mt_srand(11);
+
+        $videos = Video::inSequence()->get();
+        $docs = Doc::inSequence()->get();
+        $posts = BlogPost::published()->get();
+
+        foreach ($students as $i => $student) {
+            // Each student is a different distance into the path: from just started to well along.
+            $videoCount = [6, 4, 8, 3, 2, 10, 1, 0, 0, 1, 0, 2][$i % 12];
+            $docCount = [3, 2, 4, 1, 1, 5, 0, 0, 0, 1, 0, 1][$i % 12];
+
+            $openVideos = $videos->filter(fn (Video $v) => $v->isAccessibleBy($student))->values();
+            $openDocs = $docs->filter(fn (Doc $d) => $d->isAccessibleBy($student))->values();
+
+            foreach ($openVideos->take($videoCount) as $n => $video) {
+                $this->record($student, $video, completed: true, daysAgo: max(1, $videoCount - $n) + mt_rand(0, 2));
+            }
+            // One lesson started but not finished: it becomes their "continue watching".
+            if ($video = $openVideos->get($videoCount)) {
+                $this->record($student, $video, completed: false, daysAgo: mt_rand(0, 1));
+            }
+
+            foreach ($openDocs->take($docCount) as $n => $doc) {
+                $this->record($student, $doc, completed: true, daysAgo: max(1, $docCount - $n) + mt_rand(0, 3));
+            }
+
+            foreach ($posts->filter(fn () => mt_rand(0, 99) < 40) as $post) {
+                $this->record($student, $post, completed: false, daysAgo: mt_rand(0, 20));
+            }
+        }
+    }
+
+    private function record(User $student, $item, bool $completed, int $daysAgo): void
+    {
+        $when = now()->subDays($daysAgo)->subMinutes(mt_rand(0, 600));
+
+        $student->contentProgress()->updateOrCreate(
+            ['progressable_type' => $item->getMorphClass(), 'progressable_id' => $item->getKey()],
+            ['viewed_at' => $when, 'completed_at' => $completed ? $when : null],
+        );
     }
 
     private function like($students): void

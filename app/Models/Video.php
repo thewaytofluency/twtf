@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CourseLevel;
 use App\Models\Concerns\Likeable;
+use App\Models\Concerns\Sequenced;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,11 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Video extends Model
 {
-    use HasFactory, Likeable;
+    use HasFactory, Likeable, Sequenced;
 
     protected $fillable = [
         'title', 'description', 'youtube_url', 'course_level',
-        'required_access_level', 'created_by',
+        'required_access_level', 'sort_order', 'created_by',
     ];
 
     protected $attributes = [
@@ -27,6 +28,7 @@ class Video extends Model
         return [
             'course_level' => CourseLevel::class,
             'required_access_level' => 'integer',
+            'sort_order' => 'integer',
             'like_count' => 'integer',
         ];
     }

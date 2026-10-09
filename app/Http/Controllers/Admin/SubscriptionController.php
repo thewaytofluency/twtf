@@ -45,10 +45,10 @@ class SubscriptionController extends Controller
     {
         $plan = Plan::findOrFail($request->validated('plan_id'));
 
-        // Created as 'pending' (the DB default) then immediately approved — same code
+        // Created as 'pending' (the DB default) then immediately approved - same code
         // path the review-queue approve button uses, just admin-initiated instead of
         // triggered by a student-submitted payment proof (see SubscriptionController,
-        // the student-facing one, for that flow — its requests stay pending for review).
+        // the student-facing one, for that flow - its requests stay pending for review).
         $subscription = Subscription::create([
             'user_id' => $request->validated('user_id'),
             'plan_id' => $plan->id,

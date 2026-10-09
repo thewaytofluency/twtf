@@ -5,7 +5,7 @@
 
     <p class="mb-6 text-gray-600 max-w-xl">
         Use this for payments coordinated outside the site (e.g. over WhatsApp). It
-        records and immediately activates a subscription — no approval step needed
+        records and immediately activates a subscription - no approval step needed
         since you're the one confirming payment was received.
     </p>
 
@@ -31,7 +31,7 @@
                     <option value="">Select a plan</option>
                     @foreach ($plans as $plan)
                         <option value="{{ $plan->id }}" @selected(old('plan_id') == $plan->id)>
-                            {{ $plan->name }} — {{ number_format($plan->fee, 2) }} MZN/month
+                            {{ $plan->name }} - {{ number_format($plan->fee, 2) }} MZN/month
                         </option>
                     @endforeach
                 </select>

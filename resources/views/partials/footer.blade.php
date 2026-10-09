@@ -5,7 +5,7 @@
     background there; the text and icons are dark slate to stay readable on it.
 
     $socialLinks comes from the composer registered in AppServiceProvider (shared with the
-    including 'welcome' view, not fetched here) — see resources/views/components/social-links.blade.php.
+    including 'welcome' view, not fetched here) - see resources/views/components/social-links.blade.php.
 --}}
 <footer class="text-slate-700 text-center border-t border-slate-200 pt-10">
     <x-social-links :links="$socialLinks" class="mb-6" icon-class="text-slate-600" brand-hover />

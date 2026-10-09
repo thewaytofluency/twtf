@@ -3,21 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\LearningSummary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * The student's profile: who they are, their plan, how far they've got, and the account forms.
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        $summary = new LearningSummary($user);
+        $resume = $summary->resumeVideo();
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'subscription' => $user->currentSubscription?->load('plan'),
+            'pendingSubscription' => $user->pendingSubscription,
+            'stats' => $summary->stats(),
+            'levelProgress' => $summary->levelProgress(),
+            'recent' => $summary->recent(6),
+            'resume' => $resume,
+            'resumeStarted' => $resume ? $summary->hasStarted($resume) : false,
+            'nextDoc' => $summary->nextDoc(),
         ]);
     }
 
@@ -26,13 +40,22 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->safe()->only(['name', 'email', 'contact']));
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        if ($request->hasFile('photo')) {
+            $this->deletePhoto($user);
+            $user->photo = $request->file('photo')->store('avatars', 'public');
+        } elseif ($request->boolean('remove_photo')) {
+            $this->deletePhoto($user);
+            $user->photo = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -56,5 +79,12 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    private function deletePhoto($user): void
+    {
+        if ($user->photo) {
+            Storage::disk('public')->delete($user->photo);
+        }
     }
 }

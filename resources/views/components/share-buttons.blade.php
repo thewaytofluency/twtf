@@ -1,7 +1,7 @@
 @props(['title' => ''])
 
 {{--
-    Facebook + WhatsApp only — both have simple URL-based share intents and the project
+    Facebook + WhatsApp only - both have simple URL-based share intents and the project
     already has their brand icons in public/images/ (reused here, same bare /images/... path
     convention as welcome.blade.php). Twitter/X isn't one of the client's platforms
     (SocialPlatform enum: Facebook/YouTube/Instagram/TikTok/WhatsApp); Instagram/TikTok/YouTube

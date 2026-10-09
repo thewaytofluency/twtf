@@ -20,9 +20,11 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             AdminUserSeeder::class,
             SocialMediaLinkSeeder::class,
+            CourseSeeder::class,
+            ImpactItemSeeder::class,
         ]);
 
-        // Realistic sample content for manual testing — never in production.
+        // Realistic sample content for manual testing - never in production.
         if (app()->environment('local')) {
             $this->call(DemoContentSeeder::class);
         }

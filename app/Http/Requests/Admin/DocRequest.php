@@ -24,6 +24,7 @@ class DocRequest extends FormRequest
             ],
             'course_level' => ['nullable', new Enum(CourseLevel::class)],
             'required_access_level' => ['required', 'integer', 'min:0', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:65535'],
         ];
     }
 }

@@ -2,7 +2,7 @@
     Ported from src/pages/privatePages/Home.tsx. Shell extracted to
     components/layouts/student.blade.php (Phase 3), shared with the new /videos, /documents,
     /blog, /studyguide pages. The source's 4 stat tiles (24 videos / 12 documents / 68% progress
-    / 7 day streak) were all hardcoded fakes with no backing data model — no watch-history or
+    / 7 day streak) were all hardcoded fakes with no backing data model - no watch-history or
     login-streak table exists anywhere in the schema, and building one just to fill a vanity
     metric wasn't requested. Replaced with 4 real values from HomeController instead: content
     counts (scoped to what this student's plan actually grants) and their subscription state.
@@ -17,6 +17,54 @@
         <h1 class="text-xl font-bold text-gray-800 mb-1">Welcome, {{ $username }}!</h1>
         <p class="text-gray-600 text-sm">Continue your learning journey</p>
     </div>
+
+    <!-- Continue learning -->
+    @if ($resume || $nextDoc)
+        <section class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @if ($resume)
+                    <a href="{{ route('videos.show', $resume) }}" class="group flex flex-col p-5 rounded-xl text-white bg-gradient-to-br from-blue-600 to-blue-500 shadow-sm hover:shadow-md transition">
+                        <span class="text-xs uppercase tracking-wide text-blue-100">{{ $resumeStarted ? 'Continue watching' : 'Start learning' }}</span>
+                        <span class="mt-1 font-semibold leading-snug">{{ $resume->title }}</span>
+                        <span class="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-medium">
+                            <x-lucide-play class="w-4 h-4" /> {{ $resume->course_level->label() }}
+                            <x-lucide-chevron-right class="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </a>
+                @endif
+                @if ($nextDoc)
+                    <a href="{{ route('documents.show', $nextDoc) }}" class="group flex flex-col p-5 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-green-300 transition">
+                        <span class="text-xs uppercase tracking-wide text-green-600">Next to study</span>
+                        <span class="mt-1 font-semibold leading-snug text-gray-800">{{ $nextDoc->title }}</span>
+                        <span class="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-medium text-green-600">
+                            <x-lucide-file-text class="w-4 h-4" /> {{ $nextDoc->course_level?->label() ?? 'General' }}
+                            <x-lucide-chevron-right class="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </a>
+                @endif
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-sm font-semibold text-gray-800 mb-3">Your progress</h2>
+                <div class="space-y-3">
+                    @foreach ($levelProgress as $row)
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                <span>{{ $row['level']->label() }}</span>
+                                <span>{{ $row['done'] }}/{{ $row['total'] }}</span>
+                            </div>
+                            <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                                <div class="h-full bg-green-500" style="width: {{ $row['percent'] }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <a href="{{ route('profile.edit') }}" class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
+                    See all your stats <x-lucide-chevron-right class="w-3 h-3" />
+                </a>
+            </div>
+        </section>
+    @endif
 
     <!-- Quick Stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -63,7 +111,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Plan Expires</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $planExpires ?? '—' }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $planExpires ?? '-' }}</p>
                 </div>
                 <div class="p-2 bg-purple-100 rounded-lg">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

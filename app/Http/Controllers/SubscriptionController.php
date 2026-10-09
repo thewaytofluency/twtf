@@ -65,7 +65,7 @@ class SubscriptionController extends Controller
      * Shared by request() and store(): the Free plan has nothing to request, and a
      * student shouldn't be able to queue up a second request while one is already
      * pending review. Both are "you shouldn't be here" states, not security
-     * boundaries — one aborts (real invalid target), the other redirects with a
+     * boundaries - one aborts (real invalid target), the other redirects with a
      * message (a normal state the student caused themselves).
      */
     private function guardAgainstInvalidRequest(Plan $plan): ?RedirectResponse

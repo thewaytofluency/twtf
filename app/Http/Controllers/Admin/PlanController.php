@@ -53,7 +53,7 @@ class PlanController extends Controller
 
     public function destroy(Plan $plan): RedirectResponse
     {
-        // subscriptions.plan_id is restrictOnDelete — check up front for a friendly message
+        // subscriptions.plan_id is restrictOnDelete - check up front for a friendly message
         // instead of surfacing a foreign key exception.
         if ($plan->subscriptions()->exists()) {
             return back()->withErrors(['plan' => "\"{$plan->name}\" has subscriptions and can't be deleted. Deactivate it instead to hide it from the site."]);

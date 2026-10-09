@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
+use App\Http\Controllers\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocController as AdminDocController;
+use App\Http\Controllers\Admin\ImpactItemController as AdminImpactItemController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\SocialMediaLinkController as AdminSocialMediaLinkController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
@@ -14,17 +16,22 @@ use App\Http\Controllers\DocController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\VideoController;
+use App\Models\Course;
+use App\Models\ImpactItem;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
 
-// Public pages — ported from src/router/index.tsx. Courses/Impact/Pricing used to be separate
+// Public pages - ported from src/router/index.tsx. Courses/Impact/Pricing used to be separate
 // routes/views; they're now sections (#courses, #impact, #pricing) on the single fullpage
 // scroll-snap landing page, so the old URLs just redirect to their anchor.
 Route::get('/', function () {
     return view('welcome', [
-        // Paid, active plans only � same set the in-app plan picker offers (the free tier
+        'courses' => Course::active()->ordered()->get(),
+        'impactItems' => ImpactItem::active()->ordered()->get(),
+        // Paid, active plans only - same set the in-app plan picker offers (the free tier
         // isn't something to "choose" on the pricing section).
         'plans' => Plan::active()->where('access_level', '>', 0)->orderBy('access_level')->orderBy('fee')->get(),
     ]);
@@ -34,13 +41,13 @@ Route::redirect('/courses', '/#courses');
 Route::redirect('/impact', '/#impact');
 Route::redirect('/pricing', '/#pricing');
 
-// Protected pages — the source app's PrivateRoute only checked "is there a logged-in user"
+// Protected pages - the source app's PrivateRoute only checked "is there a logged-in user"
 // (its requiredRole prop was an unimplemented console.log stub), which is exactly what
 // Laravel's built-in 'auth' middleware does. No role-based access control exists here.
 Route::middleware('auth')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-    // Phase 3 — real, access-gated content replacing the `<div>...Page</div>` placeholders
+    // Phase 3 - real, access-gated content replacing the `<div>...Page</div>` placeholders
     // that stood in for these since the initial port. isAccessibleBy() is still checked
     // server-side inside VideoController@show and DocController@download themselves, not just
     // relied on via what these index pages choose to link to.
@@ -48,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/videos/{video}', [VideoController::class, 'show'])->name('videos.show');
 
     Route::get('/documents', [DocController::class, 'index'])->name('documents.index');
+    Route::get('/documents/{doc}', [DocController::class, 'show'])->name('documents.show');
+    Route::get('/documents/{doc}/preview', [DocController::class, 'preview'])->name('documents.preview');
     Route::get('/documents/{doc}/download', [DocController::class, 'download'])->name('documents.download');
     Route::get('/studyguide', [DocController::class, 'studyGuide'])->name('documents.study-guide');
 
@@ -55,11 +64,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/blog/{blogPost}', [BlogPostController::class, 'show'])->name('blog.show');
     Route::post('/blog/{blogPost}/comments', [CommentController::class, 'store'])->name('blog.comments.store');
 
-    // Phase 5 — generic polymorphic like toggle, shared by BlogPost/Video/Comment (all three
+    // Phase 5 - generic polymorphic like toggle, shared by BlogPost/Video/Comment (all three
     // already use the Likeable trait + morph map from Phase 1). One route instead of three.
+    // Mark a video/document complete (or not). Shared by the player, the buttons and the doc reader.
+    Route::post('/progress', [ProgressController::class, 'update'])->name('progress.update');
+
     Route::post('/likes/toggle', [LikeController::class, 'toggle'])->name('likes.toggle');
 
-    // Phase 4 — student-facing subscription request flow. Requests are created 'pending'
+    // Phase 4 - student-facing subscription request flow. Requests are created 'pending'
     // and land in the admin's existing subscriptions review queue (Phase 2); approving one
     // reuses Subscription::approve(), the same code path the admin's own manual-entry flow
     // already uses.
@@ -69,7 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/subscription/plans/{plan}/request', [SubscriptionController::class, 'store'])->name('subscription.store');
 
     // NOTE: the source app also has a bare `<div>Profile Page</div>` placeholder at /profile.
-    // That route is intentionally NOT recreated here — Breeze's own /profile (account
+    // That route is intentionally NOT recreated here - Breeze's own /profile (account
     // name/email/password management, ProfileController below) already owns this path as
     // part of the native auth scaffold decided on for this port. Overwriting it with a stub
     // would remove working account-management functionality that Breeze provides out of the
@@ -79,7 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin panel (Phase 2). `EnsureUserIsActive` doesn't need adding here — it's already
+// Admin panel (Phase 2). `EnsureUserIsActive` doesn't need adding here - it's already
 // globally appended to the 'web' middleware group in bootstrap/app.php, inherited here too.
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -90,7 +102,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('blog-posts', AdminBlogPostController::class)->except('show');
     Route::resource('plans', AdminPlanController::class)->except('show');
 
-    // Edit-only: platform is a closed 5-case enum, unique, seeded once — nothing to create/destroy.
+    // Landing page content. Order is admin-controlled: PATCH .../move swaps a row one step up/down.
+    Route::patch('courses/{course}/move', [AdminCourseController::class, 'move'])->name('courses.move');
+    Route::resource('courses', AdminCourseController::class)->except('show');
+    Route::patch('impact/{impact}/move', [AdminImpactItemController::class, 'move'])->name('impact.move');
+    Route::resource('impact', AdminImpactItemController::class)->except('show')->parameters(['impact' => 'impact']);
+
+    // Edit-only: platform is a closed 5-case enum, unique, seeded once - nothing to create/destroy.
     Route::resource('social-media-links', AdminSocialMediaLinkController::class)
         ->only(['index', 'edit', 'update']);
 

@@ -41,6 +41,12 @@
         </select>
         <p class="mt-1 text-sm text-gray-500">Students on this plan or higher can watch this video.</p>
     </div>
+
+    <div>
+        <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Lesson order</label>
+        <input id="sort_order" name="sort_order" type="number" min="0" class="{{ $inputClass }}" value="{{ old('sort_order', $video->exists ? $video->sort_order : '') }}" placeholder="Leave empty to add at the end">
+        <p class="mt-1 text-sm text-gray-500">Position within its level. Students move through lessons in this order (previous / next, up next).</p>
+    </div>
 </div>
 
 <div class="mt-6 flex items-center gap-3">

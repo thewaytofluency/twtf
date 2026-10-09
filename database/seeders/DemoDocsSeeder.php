@@ -44,6 +44,7 @@ class DemoDocsSeeder extends Seeder
                 'required_access_level' => $doc['access'],
                 'created_by' => $admin->id,
             ]);
+            $model->sort_order = $model->sort_order ?: $i + 1;
             $model->created_at = $model->created_at ?? now()->subDays(90 - $i * 8);
             $model->save();
         }

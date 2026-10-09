@@ -48,7 +48,7 @@
                                 {{ $subscription->status->label() }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-gray-600">{{ $subscription->ends_at?->format('Y-m-d') ?? '—' }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ $subscription->ends_at?->format('Y-m-d') ?? '-' }}</td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             @if ($subscription->proof_path)
                                 <a href="{{ route('admin.subscriptions.proof', $subscription) }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 font-medium mr-3">

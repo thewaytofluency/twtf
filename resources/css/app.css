@@ -8,7 +8,7 @@
     background-position: center;
 }
 
-/* Blog post body — shared by the admin editor and the public article page. */
+/* Blog post body - shared by the admin editor and the public article page. */
 .post-content [data-align='center'] { text-align: center; }
 .post-content [data-align='right'] { text-align: right; }
 .post-content [data-align='left'] { text-align: left; }

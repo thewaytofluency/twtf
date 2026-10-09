@@ -8,7 +8,7 @@ use App\Models\Video;
 use Illuminate\Support\Facades\Storage;
 
 // isAccessibleBy() is a real authorization boundary (VideoController@show,
-// DocController@download) — these tests guard against a future regression there,
+// DocController@download) - these tests guard against a future regression there,
 // since nothing else in the suite exercises it at the HTTP layer.
 
 test('a student below the required access level cannot watch a gated video', function () {

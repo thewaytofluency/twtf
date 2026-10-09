@@ -57,7 +57,7 @@ class BlogPost extends Model
         return $this->hasMany(Comment::class);
     }
 
-    /** Always stored sanitized — see PostHtml. Plain text from older posts/seeders is wrapped in paragraphs. */
+    /** Always stored sanitized - see PostHtml. Plain text from older posts/seeders is wrapped in paragraphs. */
     protected function content(): Attribute
     {
         return Attribute::make(set: fn (?string $value) => PostHtml::clean($value));
