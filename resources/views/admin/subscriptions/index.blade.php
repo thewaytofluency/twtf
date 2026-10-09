@@ -1,6 +1,6 @@
 <x-layouts.admin title="Subscriptions">
     <div class="mb-6 flex justify-between items-center">
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
             @foreach (['pending' => 'Pending', 'active' => 'Active', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled', 'all' => 'All'] as $value => $label)
                 <a
                     href="{{ route('admin.subscriptions.index', ['status' => $value]) }}"

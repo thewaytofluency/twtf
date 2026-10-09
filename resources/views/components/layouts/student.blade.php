@@ -47,7 +47,7 @@
                 </div>
             </header>
 
-            <div class="h-[calc(100vh-75px)] flex bg-gray-50">
+            <div class="h-[100dvh] md:h-[calc(100vh-75px)] flex bg-gray-50">
                 <!-- Desktop Sidebar -->
                 <aside class="w-56 bg-white shadow-lg hidden md:flex flex-col border-r border-gray-200">
                     <nav class="flex-1 py-4">
@@ -123,7 +123,7 @@
                 </aside>
 
                 <!-- Main Content -->
-                <div class="flex-1 flex flex-col">
+                <div class="flex-1 min-w-0 min-h-0 flex flex-col">
                     <!-- Mobile Navbar -->
                     <nav class="w-full bg-white p-4 shadow-md flex justify-between items-center md:hidden">
                         <div class="flex items-center space-x-2">
@@ -211,7 +211,7 @@
                     </template>
 
                     <!-- Content Section -->
-                    <main class="flex-1 p-4 md:p-8 bg-gray-50 h-[100vh] overflow-y-auto">
+                    <main class="flex-1 min-h-0 p-4 md:p-8 bg-gray-50 overflow-y-auto">
                         {{ $slot }}
                     </main>
                 </div>

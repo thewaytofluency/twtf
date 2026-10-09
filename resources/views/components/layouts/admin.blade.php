@@ -33,7 +33,7 @@
                 </div>
             </header>
 
-            <div class="h-[calc(100vh-75px)] flex bg-gray-50">
+            <div class="h-[100dvh] md:h-[calc(100vh-75px)] flex bg-gray-50">
                 <!-- Desktop Sidebar -->
                 <aside class="w-56 bg-white shadow-lg hidden md:flex flex-col border-r border-gray-200">
                     <nav class="flex-1 py-4">
@@ -74,7 +74,7 @@
                 </aside>
 
                 <!-- Main Content -->
-                <div class="flex-1 flex flex-col overflow-hidden">
+                <div class="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
                     <!-- Mobile Navbar -->
                     <nav class="w-full bg-white p-4 shadow-md flex justify-between items-center md:hidden">
                         <strong class="text-gray-900 text-lg font-semibold">Admin Panel</strong>
@@ -117,7 +117,7 @@
                     </template>
 
                     <!-- Content -->
-                    <main class="flex-1 p-4 md:p-8 bg-gray-50 h-[100vh] overflow-y-auto">
+                    <main class="flex-1 min-h-0 p-4 md:p-8 bg-gray-50 overflow-y-auto">
                         @if (session('status'))
                             <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
                                 {{ session('status') }}
